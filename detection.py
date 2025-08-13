@@ -30,14 +30,14 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
         y, feature = net(x)
 
     boxes_list, polys_list, ret_scores = [], [], []
-    for out in y:
+    for out, fea in zip(y, feature):
         # make score and link map
         score_text = out[:, :, 0].cpu().data.numpy()
         score_link = out[:, :, 1].cpu().data.numpy()
 
         if refine_net is not None:
             with torch.no_grad():
-                out_refiner = refine_net(out, feature)
+                out_refiner = refine_net(out, fea)
             score_link = out_refiner[0,:,:,0].cpu().data.numpy()
 
         # Post-processing
