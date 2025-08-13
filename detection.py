@@ -6,10 +6,11 @@ import cv2
 import craft_utils
 import numpy as np
 
-def test_net(net, image, text_threshold=0.7, canvas_size=1280, mag_ratio=1.5,
-             link_threshold=0.4, low_text=0.4, cuda=True, poly=False, refine_net=False):
+def test_net(net, image, text_threshold=0.7, link_threshold=0.5, low_text=0.4, cuda=False, poly=False,
+             canvas_size=1280, mag_ratio=1.5, refine_net=None):
     """
-    Hàm test_net đã được chỉnh sửa để loại bỏ việc tính toán thời gian thực thi.
+    Hàm test_net đã được chỉnh sửa để loại bỏ việc tính toán thời gian
+    và sử dụng tham số thay vì biến toàn cục `args`.
     """
     # resize
     img_resized, target_ratio, size_heatmap = imgproc.resize_aspect_ratio(image, canvas_size, interpolation=cv2.INTER_LINEAR, mag_ratio=mag_ratio)
@@ -31,7 +32,7 @@ def test_net(net, image, text_threshold=0.7, canvas_size=1280, mag_ratio=1.5,
     score_link = y[0,:,:,1].cpu().data.numpy()
 
     # refine link
-    if refine_net:
+    if refine_net is not None:
         with torch.no_grad():
             y_refiner = refine_net(y, feature)
         score_link = y_refiner[0,:,:,0].cpu().data.numpy()
