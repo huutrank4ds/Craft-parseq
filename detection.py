@@ -37,8 +37,8 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
 
         if refine_net is not None:
             with torch.no_grad():
-                y_refiner = refine_net(y, feature)
-            score_link = y_refiner[0,:,:,0].cpu().data.numpy()
+                out_refiner = refine_net(out, feature)
+            score_link = out_refiner[0,:,:,0].cpu().data.numpy()
 
         # Post-processing
         boxes, polys = craft_utils.getDetBoxes(
