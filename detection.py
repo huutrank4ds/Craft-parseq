@@ -29,16 +29,19 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
     with torch.no_grad():
         y, feature = net(x)
 
-    boxes_list, polys_list, ret_scores = [], [], []
-    for out, fea in zip(y, feature):
-        # make score and link map
-        score_text = out[:, :, 0].cpu().data.numpy()
-        score_link = out[:, :, 1].cpu().data.numpy()
+    score_text_batch = y[:,:,:,0].cpu().data.numpy()
+    if refine_net is not None:
+        with torch.no_grad():
+            y_refiner = refine_net(y, feature)
+        score_link_batch = y_refiner[:,:,:,0].cpu().data.numpy()
+    else:
+        score_link_batch = y[:,:,:,1].cpu().data.numpy()
 
-        if refine_net is not None:
-            with torch.no_grad():
-                out_refiner = refine_net(out, fea)
-            score_link = out_refiner[0,:,:,0].cpu().data.numpy()
+    boxes_list, polys_list, ret_scores = [], [], []
+    for score_text, score_link in zip(score_text_batch, score_link_batch):
+        # make score and link map
+        # score_text = out[:, :, 0].cpu().data.numpy()
+        # score_link = out[:, :, 1].cpu().data.numpy()
 
         # Post-processing
         boxes, polys = craft_utils.getDetBoxes(
