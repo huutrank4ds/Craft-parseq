@@ -1,24 +1,11 @@
-import time
 import imgproc
 import torch
-from torch.autograd import Variable
 import cv2
 import craft_utils
 import numpy as np
 
-import cv2
-import torch
-import numpy as np
+def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
 
-# Giả định các hàm phụ trợ đã được import
-# from .imgproc import resize_aspect_ratio, normalizeMeanVariance
-# from .craft_utils import getDetBoxes, adjustResultCoordinates
-
-def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device):
-    """
-    Phiên bản test_net đã được viết lại mà không có chức năng estimate_num_chars.
-    Hàm này chỉ tập trung vào việc phát hiện bounding box cho văn bản.
-    """
     if isinstance(image, np.ndarray) and len(image.shape) == 4:  # image is batch of np arrays
         image_arrs = image
     else:                                                        # image is single numpy array
@@ -42,14 +29,18 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
     with torch.no_grad():
         y, feature = net(x)
 
-    boxes_list, polys_list = [], []
+    boxes_list, polys_list, ret_scores = [], [], []
     for out in y:
         # make score and link map
         score_text = out[:, :, 0].cpu().data.numpy()
         score_link = out[:, :, 1].cpu().data.numpy()
 
-        # Post-processing (đã đơn giản hóa)
-        # Hàm getDetBoxes bây giờ chỉ trả về 2 giá trị
+        if refine_net is not None:
+            with torch.no_grad():
+                y_refiner = refine_net(y, feature)
+            score_link = y_refiner[0,:,:,0].cpu().data.numpy()
+
+        # Post-processing
         boxes, polys = craft_utils.getDetBoxes(
             score_text, score_link, text_threshold, link_threshold, low_text, poly)
 
@@ -57,13 +48,17 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
         boxes = craft_utils.adjustResultCoordinates(boxes, ratio_w, ratio_h)
         polys = craft_utils.adjustResultCoordinates(polys, ratio_w, ratio_h)
 
-        # Xử lý kết quả (đã đơn giản hóa)
+        # Xử lý kết quả
         for k in range(len(polys)):
-            # Cơ chế dự phòng vẫn giữ nguyên
             if polys[k] is None:
                 polys[k] = boxes[k]
+
+        render_img = score_text.copy()
+        render_img = np.hstack((render_img, score_link))
+        ret_score_text = imgproc.cvt2HeatmapImg(render_img)
         
         boxes_list.append(boxes)
         polys_list.append(polys)
+        ret_scores.append(ret_score_text)
 
-    return boxes_list, polys_list
+    return boxes_list, polys_list, ret_scores
