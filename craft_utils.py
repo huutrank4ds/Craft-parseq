@@ -13,7 +13,7 @@ def warpCoord(Minv, pt):
     return np.array([out[0]/out[2], out[1]/out[2]])
 
 
-def getDetBoxes_core(textmap, linkmap, text_threshold, link_threshold, low_text, estimate_num_chars=False):
+def getDetBoxes_core(textmap, linkmap, text_threshold, link_threshold, low_text):
     # prepare data
     linkmap = linkmap.copy()
     textmap = textmap.copy()
@@ -39,12 +39,6 @@ def getDetBoxes_core(textmap, linkmap, text_threshold, link_threshold, low_text,
         # make segmentation map
         segmap = np.zeros(textmap.shape, dtype=np.uint8)
         segmap[labels==k] = 255
-        if estimate_num_chars:
-            _, character_locs = cv2.threshold((textmap - linkmap) * segmap /255., text_threshold, 1, 0)
-            _, n_chars = label(character_locs)
-            mapper.append(n_chars)
-        else:
-            mapper.append(k)
         segmap[np.logical_and(link_score==1, text_score==0)] = 0   # remove link area
         x, y = stats[k, cv2.CC_STAT_LEFT], stats[k, cv2.CC_STAT_TOP]
         w, h = stats[k, cv2.CC_STAT_WIDTH], stats[k, cv2.CC_STAT_HEIGHT]
@@ -77,6 +71,7 @@ def getDetBoxes_core(textmap, linkmap, text_threshold, link_threshold, low_text,
         box = np.array(box)
 
         det.append(box)
+        mapper.append(k)
 
     return det, labels, mapper
 
