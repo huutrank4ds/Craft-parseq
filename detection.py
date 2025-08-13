@@ -6,7 +6,19 @@ import cv2
 import craft_utils
 import numpy as np
 
-def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device, estimate_num_chars=False):
+import cv2
+import torch
+import numpy as np
+
+# Giả định các hàm phụ trợ đã được import
+# from .imgproc import resize_aspect_ratio, normalizeMeanVariance
+# from .craft_utils import getDetBoxes, adjustResultCoordinates
+
+def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device):
+    """
+    Phiên bản test_net đã được viết lại mà không có chức năng estimate_num_chars.
+    Hàm này chỉ tập trung vào việc phát hiện bounding box cho văn bản.
+    """
     if isinstance(image, np.ndarray) and len(image.shape) == 4:  # image is batch of np arrays
         image_arrs = image
     else:                                                        # image is single numpy array
@@ -16,13 +28,13 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
     # resize
     for img in image_arrs:
         img_resized, target_ratio, size_heatmap = imgproc.resize_aspect_ratio(img, canvas_size,
-                                                                    interpolation=cv2.INTER_LINEAR,
-                                                                    mag_ratio=mag_ratio)
+                                                                      interpolation=cv2.INTER_LINEAR,
+                                                                      mag_ratio=mag_ratio)
         img_resized_list.append(img_resized)
     ratio_h = ratio_w = 1 / target_ratio
     # preprocessing
     x = [np.transpose(imgproc.normalizeMeanVariance(n_img), (2, 0, 1))
-        for n_img in img_resized_list]
+         for n_img in img_resized_list]
     x = torch.from_numpy(np.array(x))
     x = x.to(device)
 
@@ -36,21 +48,21 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
         score_text = out[:, :, 0].cpu().data.numpy()
         score_link = out[:, :, 1].cpu().data.numpy()
 
-        # Post-processing
-        boxes, polys, mapper = craft_utils.getDetBoxes(
-            score_text, score_link, text_threshold, link_threshold, low_text, poly, estimate_num_chars)
+        # Post-processing (đã đơn giản hóa)
+        # Hàm getDetBoxes bây giờ chỉ trả về 2 giá trị
+        boxes, polys = craft_utils.getDetBoxes(
+            score_text, score_link, text_threshold, link_threshold, low_text, poly)
 
         # coordinate adjustment
         boxes = craft_utils.adjustResultCoordinates(boxes, ratio_w, ratio_h)
         polys = craft_utils.adjustResultCoordinates(polys, ratio_w, ratio_h)
-        if estimate_num_chars:
-            boxes = list(boxes)
-            polys = list(polys)
+
+        # Xử lý kết quả (đã đơn giản hóa)
         for k in range(len(polys)):
-            if estimate_num_chars:
-                boxes[k] = (boxes[k], mapper[k])
+            # Cơ chế dự phòng vẫn giữ nguyên
             if polys[k] is None:
                 polys[k] = boxes[k]
+        
         boxes_list.append(boxes)
         polys_list.append(polys)
 
