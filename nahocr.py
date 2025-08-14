@@ -229,7 +229,7 @@ class NaHOCR():
                 raise ValueError("Unsupported image format. Please provide a list of image paths or numpy arrays.")
             
         if custom_process:
-            valid_rgb_imgs = [custom_process(img) for img in valid_rgb_imgs]
+            valid_rgb_imgs = custom_process(valid_rgb_imgs)
         # Thực hiện detect văn bản
         text_boxes = self.detect(valid_rgb_imgs)
 

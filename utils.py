@@ -38,7 +38,7 @@ def preprocess_img(img_input):
             raise ValueError(f"Input NumPy array has an invalid number of dimensions: {len(img_input.shape)}. Only 3 or 4 dimensions are supported.")
 
     # Trường hợp 3: Đầu vào là một danh sách
-    elif isinstance(img_input, list):
+    elif isinstance(img_input, list) or isinstance(img_input, np.ndarray):
         if not img_input:
             return np.array([]) # Trả về một batch rỗng nếu danh sách rỗng
         processed_list = []
