@@ -1,5 +1,5 @@
 from detection import get_detector, test_net
-from recognition import get_recognizer, get_transform
+from recognition import get_recognizer, ImageTransform
 from logging import getLogger
 from utils import preprocess_img
 import torch
@@ -60,6 +60,7 @@ class NaHOCR():
             return model_path
     
     def initRecognizer(self):
+        self.transform = ImageTransform(img_size=(32, 128))
         return get_recognizer(self.device)
 
 
@@ -83,7 +84,7 @@ class NaHOCR():
 
     def recognize(self, imgs, transform=True):
         if transform:
-            imgs = get_transform(imgs)
+            imgs = self.transform(imgs)
         imgs = imgs.to(self.device)
         with torch.no_grad():
             logits = self.recognizer(imgs)
