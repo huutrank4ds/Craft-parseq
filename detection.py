@@ -7,7 +7,7 @@ from craft import CRAFT
 from load_weights import copyStateDict
 import torch.backends.cudnn as cudnn
 
-def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
+def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
 
     if isinstance(image, np.ndarray) and len(image.shape) == 4:  # image is batch of np arrays
         image_arrs = image

@@ -1,12 +1,11 @@
-import torch
 from detection import get_detector, test_net
 from logging import getLogger
 from utils import preprocess_img
-from refinenet import RefineNet
+import torch
 
 LOGGER = getLogger(__name__)
 
-class NaHOCR:
+class NaHOCR():
     def __init__(self, pretrained, device='cpu', det_model_path=None,
                  detector=True, recognizer=False, 
                  verbose=True, quantize=True, cudnn_benchmark=False, refine=None):
@@ -53,9 +52,9 @@ class NaHOCR:
                link_threshold=0.7, low_text=0.2, mag_ratio=1.5, preprocess=True):
         if preprocess:
             img = preprocess_img(img)
-        boxes, polys, ret_scores =  self.get_textbox(canvas_size=canvas_size, mag_ratio=mag_ratio, net=self.net, image=img, 
-                                             text_threshold=text_threshold, link_threshold=link_threshold, 
-                                             low_text=low_text, poly=False, device=self.device, refine_net=self.refine)
+        boxes, polys, ret_scores =  self.get_textbox(net=self.detector, image=img, canvas_size=canvas_size, mag_ratio=mag_ratio,
+                                                      text_threshold=text_threshold, link_threshold=link_threshold, 
+                                                        low_text=low_text, poly=False, device=self.device, refine_net=self.refine)
         return boxes, polys
 
     def recognize(self, img, preprocess=True):
