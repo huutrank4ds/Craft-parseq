@@ -84,6 +84,15 @@ class NaHOCR():
 
     def recognize(self, imgs, transform=True):
         if transform:
+            if isinstance(imgs, list) or isinstance(imgs, np.ndarray):
+                if isinstance(imgs[0], np.ndarray):
+                    imgs = [Image.fromarray(img) for img in imgs]
+            elif isinstance(imgs, Image.Image):
+                imgs = [imgs]
+            elif isinstance(imgs, np.ndarray):
+                imgs = [Image.fromarray(imgs)]
+            else:
+                raise ValueError("Unsupported image format. Please provide a list of images or numpy arrays.")
             imgs = self.transform(imgs)
         imgs = imgs.to(self.device)
         with torch.no_grad():
