@@ -24,10 +24,10 @@ class ImgTransform():
                 imgs = [Image.fromarray(img) for img in imgs]
         elif isinstance(imgs, Image.Image):
             imgs = [imgs]
-        if isinstance(imgs, np.ndarray):
-            imgs = [Image.fromarray(imgs)]
         else:
             raise ValueError("Unsupported image format. Please provide a list of images or numpy arrays.")
+        if isinstance(imgs, np.ndarray):
+            imgs = [Image.fromarray(imgs)]
         batch_tensors = []
         for img in imgs:
             batch_tensors.append(self.transform(img))
