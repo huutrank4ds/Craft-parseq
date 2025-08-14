@@ -199,7 +199,7 @@ class NaHOCR():
             
         return image_list
 
-    def ocr(self, imgs, batch_det_size=1, batch_rec_size=1):
+    def ocr(self, imgs, batch_det_size=1, batch_rec_size=1, custom_process=None):
         """
             Thực hiện OCR trên một danh sách các ảnh.
         
@@ -228,6 +228,8 @@ class NaHOCR():
             else:
                 raise ValueError("Unsupported image format. Please provide a list of image paths or numpy arrays.")
             
+        if custom_process:
+            valid_rgb_imgs = [custom_process(img) for img in valid_rgb_imgs]
         # Thực hiện detect văn bản
         text_boxes = self.detect(valid_rgb_imgs)
 
