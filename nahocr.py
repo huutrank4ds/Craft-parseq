@@ -1,5 +1,5 @@
 from detection import get_detector, test_net
-from recognition import get_recognizer, get_transform, batch_transform
+from recognition import get_recognizer, ImgTransform
 from logging import getLogger
 from utils import preprocess_img
 import torch
@@ -60,7 +60,7 @@ class NaHOCR():
             return model_path
     
     def initRecognizer(self):
-        self.transform = batch_transform(img_size=(32, 128))
+        self.transform = ImgTransform()
         return get_recognizer(self.device)
 
 
