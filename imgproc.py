@@ -67,3 +67,4 @@ def cvt2HeatmapImg(img):
     img = (np.clip(img, 0, 1) * 255).astype(np.uint8)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     return img
+

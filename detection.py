@@ -3,6 +3,9 @@ import torch
 import cv2
 import craft_utils
 import numpy as np
+from craft import CRAFT
+from load_weights import copyStateDict
+import torch.backends.cudnn as cudnn
 
 def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
 
@@ -65,3 +68,19 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
         ret_scores.append(ret_score_text)
 
     return boxes_list, polys_list, ret_scores
+
+def get_detector(pretrained, device='cpu', quantize=True, cudnn_benchmark=False):
+    net = CRAFT()
+    if device == 'cpu':
+        net.load_state_dict(copyStateDict(torch.load(pretrained, map_location=device, weights_only=False)))
+        if quantize:
+            try:
+                torch.quantization.quantize_dynamic(net, dtype=torch.qint8, inplace=True)
+            except:
+                pass
+    else:
+        net.load_state_dict(copyStateDict(torch.load(pretrained, map_location=device, weights_only=False)))
+        net = torch.nn.DataParallel(net).to(device)
+        cudnn.benchmark = cudnn_benchmark
+    net.eval()
+    return net
