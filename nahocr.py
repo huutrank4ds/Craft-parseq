@@ -15,7 +15,7 @@ device_available = {'cpu', 'cuda'}
 
 class NaHOCR():
     def __init__(self, pretrained=True, device='cpu', det_model_path=None,
-                 detector=True, recognizer=False, 
+                 detector=True, recognizer=True, 
                  verbose=True, quantize=True, cudnn_benchmark=False, refine=None):
         
         self.pretrained = pretrained
@@ -43,7 +43,7 @@ class NaHOCR():
             self.detector = self.initDetector(detector_path)
 
         if recognizer:
-            self.initRecognizer()
+            self.recognizer = self.initRecognizer()
 
     def initDetector(self, detector_path):
         return self.get_detector(detector_path, self.device, self.quantize, self.cudnn_benchmark)
