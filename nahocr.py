@@ -2,6 +2,7 @@ from detection import get_detector, test_net
 from logging import getLogger
 from utils import preprocess_img
 import torch
+import os
 
 LOGGER = getLogger(__name__)
 
@@ -42,7 +43,13 @@ class NaHOCR():
     def getDetectorPath(self):
         self.get_textbox = test_net
         self.get_detector = get_detector
-        return self.det_model_path if self.det_model_path else 'pretrained/craft_mlt_25k.pth'
+        if self.det_model_path:
+            return self.det_model_path
+        else:
+            # Lấy thư mục hiện tại của file này
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            model_path = os.path.join(current_dir, 'pretrained/craft_mlt_25k.pth')
+            return model_path
     
     def initRecognizer(self):
         pass
