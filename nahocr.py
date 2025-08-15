@@ -1,7 +1,7 @@
 from detection import get_detector, test_net
 from recognition import get_recognizer, ImgTransform
 from logging import getLogger
-from utils import preprocess_img
+from utils import ProcessingForDetection
 import torch
 import os
 import numpy as np
@@ -47,6 +47,7 @@ class NaHOCR():
             self.recognizer = self.initRecognizer()
 
     def initDetector(self, detector_path):
+        self.process = ProcessingForDetection(self.device)
         return self.get_detector(detector_path, self.device, self.quantize, self.cudnn_benchmark, self.parallel)
 
     def getDetectorPath(self):
@@ -77,7 +78,7 @@ class NaHOCR():
                 - polys: Các polygon chứa văn bản phát hiện được 
         """
         if preprocess:
-            img = preprocess_img(img)
+            img = self.process(img)
         boxes, polys, ret_scores =  self.get_textbox(net=self.detector, image=img, canvas_size=canvas_size, mag_ratio=mag_ratio,
                                                       text_threshold=text_threshold, link_threshold=link_threshold, 
                                                         low_text=low_text, poly=False, device=self.device, refine_net=self.refine)
