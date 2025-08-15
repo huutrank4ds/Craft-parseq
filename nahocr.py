@@ -12,6 +12,14 @@ from PIL import Image
 LOGGER = getLogger(__name__)
 
 device_available = {'cpu', 'cuda'}
+setting_detect = {
+    'canvas_size': 1280,
+    'text_threshold': 0.4,
+    'link_threshold': 0.7,
+    'low_text': 0.2,
+    'mag_ratio': 1.5,
+    'preprocess': True
+}
 
 class NaHOCR():
     def __init__(self, pretrained=True, device='cpu', det_model_path=None,
@@ -201,7 +209,7 @@ class NaHOCR():
             
         return image_list
 
-    def ocr(self, imgs, batch_det_size=1, batch_rec_size=1, custom_process=None):
+    def ocr(self, imgs, batch_size_det=1, batch_size_rec=1, custom_process=None, custom_setting_det=None):
         """
             Thực hiện OCR trên một danh sách các ảnh.
         
@@ -233,7 +241,9 @@ class NaHOCR():
         if custom_process:
             valid_rgb_imgs = custom_process(valid_rgb_imgs)
         # Thực hiện detect văn bản
-        text_boxes = self.detect(valid_rgb_imgs)
+        if custom_setting_det:
+            setting_detect.update(custom_setting_det)
+        text_boxes = self.detect(valid_rgb_imgs, **setting_detect)
 
         all_patches_info = []
         for idx, img_path in enumerate(valid_img_paths):
@@ -252,9 +262,9 @@ class NaHOCR():
 
         all_patches = [patch_info['patch'] for patch_info in all_patches_info]
 
-        for i in range(0, len(all_patches), batch_rec_size):
+        for i in range(0, len(all_patches), batch_size_rec):
             # Tạo batch các patch ảnh
-            batch_of_patches = all_patches[i:i + batch_rec_size]
+            batch_of_patches = all_patches[i:i + batch_size_rec]
             # Nhận dạng batch hiện tại
             batch_texts, batch_confs = self.recognize(batch_of_patches)
             # Thêm kết quả của batch vào danh sách tổng
