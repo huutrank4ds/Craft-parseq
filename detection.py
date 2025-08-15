@@ -8,12 +8,20 @@ from load_weights import copyStateDict
 import torch.backends.cudnn as cudnn
 
 def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
+    """
+        test_net nhận ảnh đầu vào là numpy array
+    """
+    if isinstance(image, np.ndarray):
+        if len(image.shape) == 4:
+            image_arrs = image
+        elif len(image.shape) == 3:
+            image_arrs = [image]
+        else:
+            raise ValueError("Input image must be a numpy array of numpy arrays.")
+    else:
+        raise ValueError("Input image must be a numpy array of numpy arrays.")
 
-    if isinstance(image, np.ndarray) and len(image.shape) == 4:  # image is batch of np arrays
-        image_arrs = image
-    else:                                                        # image is single numpy array
-        image_arrs = [image]
-
+    # image_arrs là batch (B, H, W, C)
     img_resized_list = []
     # resize
     for img in image_arrs:
@@ -22,12 +30,16 @@ def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold,
                                                                       mag_ratio=mag_ratio)
         img_resized_list.append(img_resized)
     ratio_h = ratio_w = 1 / target_ratio
-    # preprocessing
-    x = [np.transpose(imgproc.normalizeMeanVariance(n_img), (2, 0, 1))
-         for n_img in img_resized_list]
-    x = torch.from_numpy(np.array(x))
-    x = x.to(device)
 
+    x = []
+    for img in img_resized_list:
+        img = imgproc.normalizeMeanVariance(img)
+        img = torch.from_numpy(img).permute(2, 0, 1)
+        x.append(img)
+    x = torch.stack(x)
+    if device.type == 'cuda':
+        x = x.to(device)
+        
     # forward pass
     with torch.no_grad():
         y, feature = net(x)

@@ -53,60 +53,56 @@ class ProcessingForDetection():
         batch_tensor = torch.stack(normalized_img).to(self.device)
         return batch_tensor
 
-# def preprocess_img(img_input):
-#     """
-#         Xử lý các định dạng đầu vào khác nhau để trả về một batch ảnh.
+def preprocess_img(img_input):
+    """
+        Xử lý các định dạng đầu vào khác nhau để trả về một batch ảnh.
 
-#         Args:
-#             img_input: Đầu vào có thể là:
-#                 - str: Đường dẫn đến một tệp ảnh.
-#                 - np.ndarray: Một ảnh (H, W, C) hoặc một batch ảnh (N, H, W, C).
-#                 - list: Một danh sách các đường dẫn (str) hoặc các ảnh (np.ndarray).
+        Args:
+            img_input: Đầu vào có thể là:
+                - str: Đường dẫn đến một tệp ảnh.
+                - np.ndarray: Một ảnh (H, W, C) hoặc một batch ảnh (N, H, W, C).
+                - list: Một danh sách các đường dẫn (str) hoặc các ảnh (np.ndarray).
 
-#         Returns:
-#             np.ndarray: Một batch ảnh có dạng (N, H, W, C).
+        Returns:
+            np.ndarray: Một batch ảnh có dạng (N, H, W, C).
         
-#         Raises:
-#             TypeError: Nếu định dạng đầu vào không được hỗ trợ.
-#             ValueError: Nếu mảng NumPy có số chiều không hợp lệ hoặc danh sách chứa các mục không đồng nhất.
-#     """
-#     # Trường hợp 1: Đầu vào là một đường dẫn (string)
-#     if isinstance(img_input, str):
-#         # Tải ảnh và bọc nó trong một mảng NumPy để tạo thành một batch có 1 ảnh
-#         loaded_img = loadImage(img_input)
-#         return np.expand_dims(loaded_img, axis=0)
+        Raises:
+            TypeError: Nếu định dạng đầu vào không được hỗ trợ.
+            ValueError: Nếu mảng NumPy có số chiều không hợp lệ hoặc danh sách chứa các mục không đồng nhất.
+    """
+    # Trường hợp 1: Đầu vào là một đường dẫn (string)
+    if isinstance(img_input, str):
+        # Tải ảnh và bọc nó trong một mảng NumPy để tạo thành một batch có 1 ảnh
+        loaded_img = loadImage(img_input)
+        return np.expand_dims(loaded_img, axis=0)
 
-#     # Trường hợp 2: Đầu vào là một mảng NumPy
-#     elif isinstance(img_input, np.ndarray):
-#         # Nếu mảng có 4 chiều (N, H, W, C), nó đã là một batch
-#         if len(img_input.shape) == 4:
-#             return img_input
-#         # Nếu mảng có 3 chiều (H, W, C), nó là một ảnh đơn
-#         elif len(img_input.shape) == 3:
-#             # Thêm một chiều ở đầu để tạo thành một batch có 1 ảnh
-#             return np.expand_dims(img_input, axis=0)
-#         else:
-#             raise ValueError(f"Input NumPy array has an invalid number of dimensions: {len(img_input.shape)}. Only 3 or 4 dimensions are supported.")
+    # Trường hợp 2: Đầu vào là một mảng NumPy
+    elif isinstance(img_input, np.ndarray):
+        # Nếu mảng có 4 chiều (N, H, W, C), nó đã là một batch
+        if len(img_input.shape) == 4:
+            return img_input
+        # Nếu mảng có 3 chiều (H, W, C), nó là một ảnh đơn
+        elif len(img_input.shape) == 3:
+            # Thêm một chiều ở đầu để tạo thành một batch có 1 ảnh
+            return np.expand_dims(img_input, axis=0)
+        else:
+            raise ValueError(f"Input NumPy array has an invalid number of dimensions: {len(img_input.shape)}. Only 3 or 4 dimensions are supported.")
 
-#     # Trường hợp 3: Đầu vào là một danh sách
-#     elif isinstance(img_input, list) or isinstance(img_input, np.ndarray):
-#         if not img_input:
-#             return np.array([]) # Trả về một batch rỗng nếu danh sách rỗng
-#         processed_list = []
-#         for item in img_input:
-#             if isinstance(item, str):
-#                 processed_list.append(loadImage(item))
-#             elif isinstance(item, np.ndarray) and len(item.shape) == 3:
-#                 processed_list.append(item)
-#             else:
-#                 raise TypeError(f"DataType is not supported: {type(item)}")
+    # Trường hợp 3: Đầu vào là một danh sách
+    elif isinstance(img_input, list) or isinstance(img_input, np.ndarray):
+        if not img_input:
+            return np.array([]) # Trả về một batch rỗng nếu danh sách rỗng
+        processed_list = []
+        for item in img_input:
+            if isinstance(item, str):
+                processed_list.append(loadImage(item))
+            elif isinstance(item, np.ndarray) and len(item.shape) == 3:
+                processed_list.append(item)
+            else:
+                raise TypeError(f"DataType is not supported: {type(item)}")
 
-#         # Chuyển danh sách các ảnh thành một batch NumPy duy nhất
-#         batch_img =  np.array(processed_list)
-#         batch_img = normalizeMeanVariance(batch_img)
-#         batch_img = torch.from_numpy(batch_img).permute(0, 3, 1, 2)
-#         return batch_img
-
-#     # Trường hợp khác: Ném ra lỗi
-#     else:
-#         raise TypeError(f"Input format is not supported: {type(img_input)}")
+        # Chuyển danh sách các ảnh thành một batch NumPy duy nhất
+        return np.array(processed_list)
+    # Trường hợp khác: Ném ra lỗi
+    else:
+        raise TypeError(f"Input format is not supported: {type(img_input)}")

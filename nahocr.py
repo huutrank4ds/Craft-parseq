@@ -1,7 +1,7 @@
 from detection import get_detector, test_net
 from recognition import get_recognizer, ImgTransform
 from logging import getLogger
-from utils import ProcessingForDetection
+from utils import ProcessingForDetection, preprocess_img
 import torch
 import os
 import numpy as np
@@ -47,7 +47,7 @@ class NaHOCR():
             self.recognizer = self.initRecognizer()
 
     def initDetector(self, detector_path):
-        self.process = ProcessingForDetection(self.device)
+        self.process = preprocess_img
         return self.get_detector(detector_path, self.device, self.quantize, self.cudnn_benchmark, self.parallel)
 
     def getDetectorPath(self):
