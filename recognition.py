@@ -34,5 +34,10 @@ class ImgTransform():
         return torch.stack(batch_tensors, dim=0)
     
 
-def get_recognizer(device):
-    return torch.hub.load('baudm/parseq', 'parseq', pretrained=True, trust_repo=True).eval().to(device)
+def get_recognizer(device, parallel=True):
+    model_rec = torch.hub.load('baudm/parseq', 'parseq', pretrained=True, trust_repo=True)
+    model_rec.eval()
+    model_rec = model_rec.to(device)
+    if parallel:
+        model_rec = torch.nn.DataParallel(model_rec)
+    return model_rec

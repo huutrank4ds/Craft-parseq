@@ -69,7 +69,7 @@ def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold,
 
     return boxes_list, polys_list, ret_scores
 
-def get_detector(pretrained, device='cpu', quantize=True, cudnn_benchmark=False):
+def get_detector(pretrained, device='cpu', quantize=True, cudnn_benchmark=False, parallel=True):
     net = CRAFT()
     if device == 'cpu':
         net.load_state_dict(copyStateDict(torch.load(pretrained, map_location=device, weights_only=False)))
@@ -80,7 +80,9 @@ def get_detector(pretrained, device='cpu', quantize=True, cudnn_benchmark=False)
                 pass
     else:
         net.load_state_dict(copyStateDict(torch.load(pretrained, map_location=device, weights_only=False)))
-        net = torch.nn.DataParallel(net).to(device)
+        net = net.to(device)
+        if parallel:
+            net = torch.nn.DataParallel(net)
         cudnn.benchmark = cudnn_benchmark
     net.eval()
     return net

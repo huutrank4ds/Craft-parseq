@@ -16,13 +16,14 @@ device_available = {'cpu', 'cuda'}
 class NaHOCR():
     def __init__(self, pretrained=True, device='cpu', det_model_path=None,
                  detector=True, recognizer=True, 
-                 verbose=True, quantize=True, cudnn_benchmark=False, refine=None):
+                 verbose=True, quantize=True, cudnn_benchmark=False, parallel=True, refine=None):
         
         self.pretrained = pretrained
         self.quantize = quantize
         self.cudnn_benchmark = cudnn_benchmark
         self.det_model_path = det_model_path
         self.verbose = verbose
+        self.parallel = parallel
         self.refine = refine
 
         if device == 'cpu':
@@ -46,7 +47,7 @@ class NaHOCR():
             self.recognizer = self.initRecognizer()
 
     def initDetector(self, detector_path):
-        return self.get_detector(detector_path, self.device, self.quantize, self.cudnn_benchmark)
+        return self.get_detector(detector_path, self.device, self.quantize, self.cudnn_benchmark, self.parallel)
 
     def getDetectorPath(self):
         self.get_textbox = test_net
@@ -61,7 +62,7 @@ class NaHOCR():
     
     def initRecognizer(self):
         self.transform = ImgTransform()
-        return get_recognizer(self.device)
+        return get_recognizer(self.device, self.parallel)
 
 
     def detect(self, img, canvas_size=1280, text_threshold=0.4, 
