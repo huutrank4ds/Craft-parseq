@@ -63,7 +63,7 @@ class NaHOCR():
     
     def initRecognizer(self):
         self.transform = ImgTransform()
-        return get_recognizer(self.device, self.parallel)
+        return get_recognizer(self.device)
 
 
     def detect(self, img, canvas_size=1280, text_threshold=0.4, 
