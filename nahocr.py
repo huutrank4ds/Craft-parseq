@@ -239,15 +239,24 @@ class NaHOCR():
                 raise ValueError("Unsupported image format. Please provide a list of image paths or numpy arrays.")
             
         if custom_process:
-            valid_rgb_imgs = custom_process(valid_rgb_imgs)
+            try:
+                valid_rgb_imgs_to_det, valid_rgb_imgs_to_rec = custom_process(valid_rgb_imgs)
+                if len(valid_rgb_imgs_to_det) != len(valid_rgb_imgs_to_rec) and len(valid_rgb_imgs_to_det) != len(valid_rgb_imgs):
+                    raise ValueError("Custom processing function must return two lists of images with the same length as the input list.")
+            except Exception as e:
+                raise RuntimeError(f"Custom processing function must be return 2 list images!")
+        else:
+            valid_rgb_imgs_to_det = valid_rgb_imgs
+            valid_rgb_imgs_to_rec = valid_rgb_imgs
+
         # Thực hiện detect văn bản
         if custom_setting_det:
             setting_detect.update(custom_setting_det)
-        text_boxes = self.detect(valid_rgb_imgs, **setting_detect)
+        text_boxes = self.detect(valid_rgb_imgs_to_det, **setting_detect)
 
         all_patches_info = []
         for idx, img_path in enumerate(valid_img_paths):
-            image_patches = self.getImageList(text_boxes[idx], valid_rgb_imgs[idx])
+            image_patches = self.getImageList(text_boxes[idx], valid_rgb_imgs_to_rec[idx])
             
             for box, cropped_img in image_patches:
                 # Lưu lại thông tin để map kết quả về sau
