@@ -6,7 +6,7 @@ import torch
 import os
 import numpy as np
 import cv2
-from sort_polys import sort_reading_order
+from sort_polys import sort_reading_order, calculate_min_edge_distance
 from PIL import Image
 
 LOGGER = getLogger(__name__)
@@ -205,7 +205,7 @@ class NaHOCR():
                 
         # Sắp xếp kết quả đầu ra theo thứ tự đọc nếu được yêu cầu
         if sort_output:
-            image_list = sort_reading_order(image_list)
+            image_list = calculate_min_edge_distance(image_list)
             
         return image_list
 
