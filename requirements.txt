@@ -1,0 +1,23 @@
+# Core libraries
+torch>=2.0
+pytorch_lightning
+hydra-core
+numpy
+opencv-python
+Pillow
+lmdb
+tqdm
+pyyaml
+
+# Optional: for model export and optimization
+onnx
+onnx-simplifier
+
+# If using any tokenizers or NLP features
+# transformers
+
+# For image handling or handwriting processing
+# scikit-image
+
+# For visualization or debugging
+# matplotlib
