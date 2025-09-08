@@ -7,9 +7,12 @@ from craft import CRAFT
 from load_weights import copyStateDict
 import torch.backends.cudnn as cudnn
 
-def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
-    """
-        test_net nhận ảnh đầu vào là numpy array
+def prepare_batch(image, canvas_size=1280, mag_ratio=1.5, device=torch.device('cpu')):
+    """ Chuẩn bị batch ảnh đầu vào cho mô hình CRAFT.
+        image: Ảnh đầu vào (numpy array)
+        canvas_size: Kích thước tối đa của ảnh sau khi resize
+        mag_ratio: Tỷ lệ phóng đại ảnh
+        device: Thiết bị (CPU hoặc GPU)
     """
     if isinstance(image, np.ndarray):
         if len(image.shape) == 4:
@@ -39,7 +42,16 @@ def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold,
     x = torch.stack(x)
     if device.type == 'cuda':
         x = x.to(device)
-        
+
+    return x, (ratio_h, ratio_w), size_heatmap
+
+def test_net(net, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, refine_net=None):
+    """
+        test_net nhận ảnh đầu vào là numpy array
+    """
+    # chuẩn bị batch ảnh
+    x, (ratio_h, ratio_w), size_heatmap = prepare_batch(image, canvas_size, mag_ratio, device)
+    
     # forward pass
     with torch.no_grad():
         y, feature = net(x)
