@@ -5,11 +5,6 @@ opencv-python
 Pillow
 lmdb
 tqdm
-pyyaml
-
-# Optional: for model export and optimization
-onnx
-onnx-simplifier
 
 # If using any tokenizers or NLP features
 # transformers
