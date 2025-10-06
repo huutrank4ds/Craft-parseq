@@ -22,11 +22,10 @@ setting_detect = {
 }
 
 class NaHOCR():
-    def __init__(self, pretrained=True, device='cpu', det_model_path=None,
+    def __init__(self, device='cpu', det_model_path=None,
                  detector=True, recognizer=True, 
                  verbose=True, quantize=True, cudnn_benchmark=False, parallel=True, refine=None):
         
-        self.pretrained = pretrained
         self.quantize = quantize
         self.cudnn_benchmark = cudnn_benchmark
         self.det_model_path = det_model_path
