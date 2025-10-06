@@ -1,12 +1,12 @@
 from detection import get_detector, test_net
 from recognition import get_recognizer, ImgTransform
 from logging import getLogger
-from utils import ProcessingForDetection, preprocess_img
+from utils import preprocess_img
 import torch
 import os
 import numpy as np
 import cv2
-from sort_polys import sort_reading_order, sort_by_robust_cluster_and_reading_order
+from sort_polys import sort_by_robust_cluster_and_reading_order
 from PIL import Image
 
 LOGGER = getLogger(__name__)

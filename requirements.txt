@@ -1,16 +1,16 @@
 # Core libraries
 torch>=2.0
+torchvision
 numpy
 opencv-python
 Pillow
 lmdb
 tqdm
+scipy
 
-# If using any tokenizers or NLP features
-# transformers
 
 # For image handling or handwriting processing
-# scikit-image
+scikit-image
 
 # For visualization or debugging
-# matplotlib
+matplotlib

@@ -1,57 +1,8 @@
 import cv2
-from imgproc import loadImage, normalizeMeanVariance
+from imgproc import loadImage
 import numpy as np
 import torch
 
-class ProcessingForDetection():
-    def __init__(self, device):
-        self.device = device
-
-    def check_type(self, img_input):
-        # Nếu là 1 đường dẫn ảnh
-        if isinstance(img_input, str):
-            # Tải ảnh và bọc nó trong một mảng NumPy để tạo thành một batch có 1 ảnh
-            loaded_img = loadImage(img_input)
-            return np.expand_dims(loaded_img, axis=0)
-        # Trường hợp 2: Đầu vào là một mảng NumPy
-        elif isinstance(img_input, np.ndarray):
-            if not img_input:
-                return np.array([])  # Trả về một batch rỗng nếu mảng rỗng
-            # Nếu mảng có 4 chiều (N, H, W, C), nó đã là một batch
-            if len(img_input.shape) == 4:
-                return img_input
-            # Nếu mảng có 3 chiều (H, W, C), nó là một ảnh đơn
-            elif len(img_input.shape) == 3:
-                # Thêm một chiều ở đầu để tạo thành một batch có 1 ảnh
-                return np.expand_dims(img_input, axis=0)
-            else:
-                raise ValueError(f"Input NumPy array has an invalid number of dimensions: {len(img_input.shape)}. Only 3 or 4 dimensions are supported.")
-        # Trường hợp 3: Đầu vào là một danh sách
-        elif isinstance(img_input, list):
-            if not img_input:
-                return np.array([]) # Trả về một batch rỗng nếu danh sách rỗng
-            processed_list = []
-            for item in img_input:
-                if isinstance(item, str):
-                    processed_list.append(loadImage(item))
-                elif isinstance(item, np.ndarray) and len(item.shape) == 3:
-                    processed_list.append(item)
-                else:
-                    raise TypeError(f"DataType is not supported: {type(item)}")
-            return np.array(processed_list)
-        else:
-            raise TypeError(f"Input format is not supported: {type(img_input)}")
-        
-    def process_one(self, img):
-        img = normalizeMeanVariance(img)
-        img = torch.from_numpy(img).permute(2, 0, 1)
-        return img
-
-    def __call__(self, img_input):
-        processed_img = self.check_type(img_input)
-        normalized_img = [self.process_one(img) for img in processed_img]
-        batch_tensor = torch.stack(normalized_img).to(self.device)
-        return batch_tensor
 
 def preprocess_img(img_input):
     """
