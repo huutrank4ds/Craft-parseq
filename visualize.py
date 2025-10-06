@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
 
 def overlay_heatmap(original_image, score_map, alpha=0.7, beta=0.3, gamma=0):
     """
