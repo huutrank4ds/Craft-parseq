@@ -251,7 +251,14 @@ class NaHOCR():
         # Thực hiện detect văn bản
         if custom_setting_det:
             setting_detect.update(custom_setting_det)
-        text_boxes = self.detect(valid_rgb_imgs_to_det, **setting_detect)
+        
+        text_boxes = []
+        for i in range(0, len(valid_rgb_imgs_to_det), batch_size_det):
+            batch_imgs = valid_rgb_imgs_to_det[i:i + batch_size_det]
+            if i == 0:
+                text_boxes = self.detect(batch_imgs, **setting_detect)
+            else:
+                text_boxes.extend(self.detect(batch_imgs, **setting_detect))
 
         all_patches_info = []
         for idx, img_path in enumerate(valid_img_paths):
